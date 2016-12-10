@@ -93,4 +93,5 @@ finally:
     print("\nCleaning up")
     pi.stop()
 
+# This pi.stop is needed to clean-up pigpio before try.
 pi.stop()
