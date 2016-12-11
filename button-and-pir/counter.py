@@ -86,7 +86,7 @@ try:
 except KeyboardInterrupt:
     print("\nProcessing ctrl+c")
 
-except:
+except Exception:
     print("\nProcessing unhandled errors and exceptions")
 
 finally:
