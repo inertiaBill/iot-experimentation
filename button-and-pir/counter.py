@@ -10,6 +10,8 @@ import sys
 import time
 import pigpio
 
+import pir
+
 # Uses pigpio. Ensure the daemon is running before running program.
 # It can be started with,
 #   sudo pigpiod 
@@ -28,11 +30,14 @@ PIR_PIN = 23
 SKIP_UNTIL = 0
 SKIP_DURATION = 1.0
 
+PIR_INSTANCE = pir.PirSensor()
+
 # Set GPIO modes
 # NYI - Try software pull up resistor
 pi.set_mode(BUTTON_PIN, pigpio.INPUT)
 pi.set_mode(PIR_PIN, pigpio.INPUT)
 pi.set_mode(LED_PIN, pigpio.OUTPUT)
+
 
 def process_button(gpio, level, tick):
     global SKIP_UNTIL
@@ -63,6 +68,7 @@ def process_pir_detect(gpio, level, tick):
     if(gpio == PIR_PIN):
         print("PIR rising")
         pi.write(LED_PIN, 1)
+        PIR_INSTANCE.process_edge(gpio, level, tick)
         
 def process_pir_no_detect(gpio, level, tick):
     print('')
@@ -70,6 +76,7 @@ def process_pir_no_detect(gpio, level, tick):
     if(gpio == PIR_PIN):
         print("PIR falling")
         pi.write(LED_PIN, 0)
+        PIR_INSTANCE.process_edge(gpio, level, tick)
         
 #pi.callback(BUTTON_PIN, pigpio.RISING_EDGE, process_button)
 pi.callback(BUTTON_PIN, pigpio.EITHER_EDGE, process_button)
