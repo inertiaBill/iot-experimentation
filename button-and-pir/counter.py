@@ -66,7 +66,7 @@ def process_pir_detect(gpio, level, tick):
     print('')
     print("pir_detect - GPIO: %s, level: %s, tick: %s" % (gpio, level, tick))
     if(gpio == PIR_PIN):
-        print("PIR rising")
+        print("PIR       rising")
         pi.write(LED_PIN, 1)
         PIR_INSTANCE.process_edge(gpio, level, tick)
         
@@ -74,7 +74,7 @@ def process_pir_no_detect(gpio, level, tick):
     print('')
     print("pir_no_detect - GPIO: %s, level: %s, tick: %s" % (gpio, level, tick))
     if(gpio == PIR_PIN):
-        print("PIR falling")
+        print("PIR       falling")
         pi.write(LED_PIN, 0)
         PIR_INSTANCE.process_edge(gpio, level, tick)
         
