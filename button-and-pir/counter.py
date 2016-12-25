@@ -9,6 +9,7 @@ and PIR sensor.
 import sys
 import time
 import pigpio
+from threading import Thread
 
 import pir
 
@@ -25,19 +26,25 @@ pi = pigpio.pi()
 
 # Set globals
 BUTTON_PIN = 16
-LED_PIN = 18
+BUTTON_LED_PIN = 26
+PIR_LED_PIN = 18
 PIR_PIN = 23
 SKIP_UNTIL = 0
 SKIP_DURATION = 1.0
 
-PIR_INSTANCE = pir.PirSensor()
+PIR_INSTANCE = pir.PirSensor(pi, PIR_LED_PIN)
 
 # Set GPIO modes
 # NYI - Try software pull up resistor
 pi.set_mode(BUTTON_PIN, pigpio.INPUT)
 pi.set_mode(PIR_PIN, pigpio.INPUT)
-pi.set_mode(LED_PIN, pigpio.OUTPUT)
+pi.set_mode(PIR_LED_PIN, pigpio.OUTPUT)
+pi.set_mode(BUTTON_LED_PIN, pigpio.OUTPUT)
 
+def flash_button_led():
+    pi.write(BUTTON_LED_PIN, 1)
+    time.sleep(1)
+    pi.write(BUTTON_LED_PIN, 0)
 
 def process_button(gpio, level, tick):
     global SKIP_UNTIL
@@ -48,6 +55,9 @@ def process_button(gpio, level, tick):
         # if rise happens after skip time, log a press and reset
         # the skip time.
         if(current_time > SKIP_UNTIL):
+            #t = Thread(target=flash_button_led, args=(i,))
+            t = Thread(target=flash_button_led)
+            t.start()
             print('')
             print('*** New Press 0 *** GPIO: %s, level: %s, tick: %s' % 
                     (gpio, level, tick))
@@ -62,30 +72,14 @@ def process_button(gpio, level, tick):
         # Ignore all falling edge. Output 'V' to indicate this
         print('V', end='')
 
-def process_pir_detect(gpio, level, tick):
-    print('')
-    print("pir_detect - GPIO: %s, level: %s, tick: %s" % (gpio, level, tick))
-    if(gpio == PIR_PIN):
-        print("PIR       rising")
-        pi.write(LED_PIN, 1)
-        PIR_INSTANCE.process_edge(gpio, level, tick)
-        
-def process_pir_no_detect(gpio, level, tick):
-    print('')
-    print("pir_no_detect - GPIO: %s, level: %s, tick: %s" % (gpio, level, tick))
-    if(gpio == PIR_PIN):
-        print("PIR       falling")
-        pi.write(LED_PIN, 0)
-        PIR_INSTANCE.process_edge(gpio, level, tick)
-        
 #pi.callback(BUTTON_PIN, pigpio.RISING_EDGE, process_button)
 pi.callback(BUTTON_PIN, pigpio.EITHER_EDGE, process_button)
-pi.callback(PIR_PIN, pigpio.RISING_EDGE, process_pir_detect)
-pi.callback(PIR_PIN, pigpio.FALLING_EDGE, process_pir_no_detect)
+pi.callback(PIR_PIN, pigpio.EITHER_EDGE, PIR_INSTANCE.process_edge)
 
 try:
     # Main function
-    pi.write(LED_PIN, 0)
+    pi.write(PIR_LED_PIN, 0)
+    pi.write(BUTTON_LED_PIN, 0)
 
     while True:
         pass
@@ -98,6 +92,8 @@ except Exception:
 
 finally:
     print("\nCleaning up")
+    pi.write(PIR_LED_PIN, 0)
+    pi.write(BUTTON_LED_PIN, 0)
     pi.stop()
 
 # This pi.stop is needed to clean-up pigpio before try.
