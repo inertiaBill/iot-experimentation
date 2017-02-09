@@ -8,10 +8,13 @@ class GyroClear(object):
     #Initialize class variables here
     b = (0, 0, 255) # blue
     c = (0, 0, 0) # clear
+    e = (0, 255, 0) # eraser colour (green)
 
     def __init__(self):
         super(GyroClear, self).__init__()
         self.__sense = SenseHat()
+        self.__eraser_row = 0
+        self.__eraser_col = 0
         self.__a = [
                 GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.b, GyroClear.b, GyroClear.c, GyroClear.c, GyroClear.c,
                 GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.b, GyroClear.b, GyroClear.c, GyroClear.c, GyroClear.c,
@@ -73,11 +76,48 @@ class GyroClear(object):
         self.__sense.show_message("H: ")
         self.__sense.show_message(str(int(humidity)))
 
+    def getArrayIndex(self, x, y):
+        # NYI confirm this equation
+        index = y * 8 + x - 1
+        print('Index: %d', index)
+
+    def move_eraser(self):
+        old_x = self.__eraser_row 
+        old_y = self.__eraser_col
+        pitch = self.__sense.get_orientation()['pitch']
+        roll = self.__sense.get_orientation()['roll']
+
+        if 1 < pitch < 179 and self.__eraser_row != 0:
+            self.__eraser_row -= 1
+        elif 359 > pitch > 179 and self.__eraser_row != 7 :
+            self.__eraser_row += 1
+        if 1 < roll < 179 and self.__eraser_col != 7:
+            self.__eraser_col += 1
+        elif 359 > roll > 179 and self.__eraser_col != 0 :
+            self.__eraser_col -= 1
+
+        old_index = self.getArrayIndex(old_x, old_y)
+        new_index = self.getArrayIndex(self.__eraser_row,
+                self.__eraser_col)
+
+        self.__sense.set_pixel(old_x, old_y, GyroClear.c)
+        self.__sense.set_pixel(self.__eraser_row, self.__eraser_col, GyroClear.e)
+
+    def play_game(self, max_moves):
+        count = 0
+        while count < max_moves:
+            self.move_eraser()
+            time.sleep(0.5)
+            count += 1
+
 if __name__ == "__main__":
     game = GyroClear()
-    game.display_current_readings()
-    game.display_letters()
-    game.show_letter('a')
-    game.show_letter('s')
-    game.show_letter('p')
+    game.clear_display()
+    #game.display_current_readings()
+    #game.display_letters()
+    #game.show_letter('a')
+    #game.show_letter('s')
+    #game.show_letter('p')
+    #game.clear_display()
+    game.play_game(100)
     game.clear_display()
