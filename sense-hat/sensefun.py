@@ -6,45 +6,48 @@ from sense_hat import SenseHat
 
 class GyroClear(object):
     #Initialize class variables here
-    b = (0, 0, 255) # blue
+    b = (255, 255, 0) # background - gold
+    f = (0, 0, 255) # foreground - blue
     c = (0, 0, 0) # clear
     e = (0, 255, 0) # eraser colour (green)
+    a = [
+            b, b, b, f, f, b, b, b,
+            b, b, b, f, f, b, b, b,
+            b, b, f, b, b, f, b, b,
+            b, b, f, b, b, f, b, b,
+            b, f, f, f, f, f, f, b,
+            b, f, b, b, b, b, f, b,
+            f, b, b, b, b, b, b, f,
+            f, b, b, b, b, b, b, f,
+            ]
+    s = [
+            b, b, f, f, f, f, b, b,
+            b, f, b, b, b, b, f, b,
+            b, f, b, b, b, b, b, b,
+            b, b, f, f, f, b, b, b,
+            b, b, b, f, f, f, b, b,
+            b, b, b, b, b, b, f, b,
+            b, f, b, b, b, b, f, b,
+            b, b, f, f, f, f, b, b,
+            ]
+    p = [
+            b, f, f, f, f, f, b, b,
+            b, f, b, b, b, b, f, b,
+            b, f, b, b, b, b, f, b,
+            b, f, b, b, b, b, f, b,
+            b, f, f, f, f, f, b, b,
+            b, f, b, b, b, b, b, b,
+            b, f, b, b, b, b, b, b,
+            b, f, b, b, b, b, b, b,
+            ]
 
     def __init__(self):
         super(GyroClear, self).__init__()
         self.__sense = SenseHat()
         self.__eraser_row = 0
         self.__eraser_col = 0
-        self.__a = [
-                GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.b, GyroClear.b, GyroClear.c, GyroClear.c, GyroClear.c,
-                GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.b, GyroClear.b, GyroClear.c, GyroClear.c, GyroClear.c,
-                GyroClear.c, GyroClear.c, GyroClear.b, GyroClear.c, GyroClear.c, GyroClear.b, GyroClear.c, GyroClear.c,
-                GyroClear.c, GyroClear.c, GyroClear.b, GyroClear.c, GyroClear.c, GyroClear.b, GyroClear.c, GyroClear.c,
-                GyroClear.c, GyroClear.b, GyroClear.b, GyroClear.b, GyroClear.b, GyroClear.b, GyroClear.b, GyroClear.c,
-                GyroClear.c, GyroClear.b, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.b, GyroClear.c,
-                GyroClear.b, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.b,
-                GyroClear.b, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.b,
-                ]
-        self.__s = [
-                GyroClear.c, GyroClear.c, GyroClear.b, GyroClear.b, GyroClear.b, GyroClear.b, GyroClear.c, GyroClear.c,
-                GyroClear.c, GyroClear.b, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.b, GyroClear.c,
-                GyroClear.c, GyroClear.b, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c,
-                GyroClear.c, GyroClear.c, GyroClear.b, GyroClear.b, GyroClear.b, GyroClear.c, GyroClear.c, GyroClear.c,
-                GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.b, GyroClear.b, GyroClear.b, GyroClear.c, GyroClear.c,
-                GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.b, GyroClear.c,
-                GyroClear.c, GyroClear.b, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.b, GyroClear.c,
-                GyroClear.c, GyroClear.c, GyroClear.b, GyroClear.b, GyroClear.b, GyroClear.b, GyroClear.c, GyroClear.c,
-                ]
-        self.__p = [
-                GyroClear.c, GyroClear.b, GyroClear.b, GyroClear.b, GyroClear.b, GyroClear.b, GyroClear.c, GyroClear.c,
-                GyroClear.c, GyroClear.b, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.b, GyroClear.c,
-                GyroClear.c, GyroClear.b, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.b, GyroClear.c,
-                GyroClear.c, GyroClear.b, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.b, GyroClear.c,
-                GyroClear.c, GyroClear.b, GyroClear.b, GyroClear.b, GyroClear.b, GyroClear.b, GyroClear.c, GyroClear.c,
-                GyroClear.c, GyroClear.b, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c,
-                GyroClear.c, GyroClear.b, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c,
-                GyroClear.c, GyroClear.b, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c, GyroClear.c,
-                ]
+        self.__letters = [GyroClear.a, GyroClear.s, GyroClear.p]
+
 
     def show_letter(self, letter):
         self.__sense.show_letter(letter)
@@ -54,13 +57,9 @@ class GyroClear(object):
         self.__sense.clear()
 
     def display_letters(self):
-        time.sleep(1)
-        self.__sense.set_pixels(self.__a)
-        time.sleep(2)
-        self.__sense.set_pixels(self.__s)
-        time.sleep(2)
-        self.__sense.set_pixels(self.__p)
-        time.sleep(2)
+        for letter in range(len(self.__letters)):
+            self.__sense.set_pixels(self.__letters[letter])
+            time.sleep(2)
 
     def display_current_readings(self):
         temp = self.__sense.get_temperature()
@@ -114,10 +113,10 @@ if __name__ == "__main__":
     game = GyroClear()
     game.clear_display()
     #game.display_current_readings()
-    #game.display_letters()
+    game.display_letters()
     #game.show_letter('a')
     #game.show_letter('s')
     #game.show_letter('p')
-    #game.clear_display()
-    game.play_game(100)
+    game.clear_display()
+    #game.play_game(100)
     game.clear_display()
