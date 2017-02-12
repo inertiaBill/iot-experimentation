@@ -77,8 +77,8 @@ class GyroClear(object):
         self.__sense.show_message(str(int(humidity)))
 
     def getArrayIndex(self, x, y):
-        # NYI confirm this equation
-        index = y * 8 + x - 1
+        # NYI - this looked okay, but not fully vetted
+        index = y * 8 + x
         print('Index: %d', index)
 
     def move_eraser(self):
