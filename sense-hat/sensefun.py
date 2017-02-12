@@ -47,6 +47,22 @@ class GyroClear(object):
         self.__eraser_row = 0
         self.__eraser_col = 0
         self.__letters = [GyroClear.a, GyroClear.s, GyroClear.p]
+        self.__current_letter = 0
+        self.__current_state = self.__letters[self.__current_letter]
+
+    def count_letter_blocks(self):
+        """ Return number of letter blocks in the current letter
+        
+        It counts the number of elements that don't match the background
+        colour. The current letter is stored in self.__current_state].
+        """
+    
+        count = 0
+        for e in self.__current_state:
+            if e != GyroClear.b:
+                count +=1
+        print('Count is {0}'.format(count))
+        return count
 
 
     def show_letter(self, letter):
@@ -60,6 +76,10 @@ class GyroClear(object):
         for letter in range(len(self.__letters)):
             self.__sense.set_pixels(self.__letters[letter])
             time.sleep(2)
+
+    def display_current_board(self):
+        self.__sense.set_pixels(self.__current_state)
+
 
     def display_current_readings(self):
         temp = self.__sense.get_temperature()
@@ -75,12 +95,38 @@ class GyroClear(object):
         self.__sense.show_message("H: ")
         self.__sense.show_message(str(int(humidity)))
 
+    def next_letter(self):
+        """ Move the game to the next level
+
+        Returns False when there are no move letters.
+        """
+        next_level = True
+
+        if self.__current_letter >= (len(self.__letters) - 1):
+            next_level = False
+        else:
+            self.__current_letter += 1
+            self.__current_state = self.__letters[self.__current_letter]
+
+        return next_level
+
     def getArrayIndex(self, x, y):
-        # NYI - this looked okay, but not fully vetted
+        """ Return index in list relative to logical 8x8 matrix """
         index = y * 8 + x
-        print('Index: %d', index)
+        print('Index: {0}'.format(index))
+        return index
 
     def move_eraser(self):
+        """ Move the eraser based on pitch and roll from the Gyro
+
+        This is the brains of the game. It using values from the Gyro to move
+        the eraser around the board. If it finds a block that is not the
+        background colour, then appropriate updates are made.
+
+        Return True of a block was erased.
+        """
+
+        block_erased = False
         old_x = self.__eraser_row 
         old_y = self.__eraser_col
         pitch = self.__sense.get_orientation()['pitch']
@@ -96,27 +142,44 @@ class GyroClear(object):
             self.__eraser_col -= 1
 
         old_index = self.getArrayIndex(old_x, old_y)
-        new_index = self.getArrayIndex(self.__eraser_row,
-                self.__eraser_col)
+        print('old_index is {0} from {1},{2}'.format(old_index, old_x, old_y))
+        new_index = self.getArrayIndex(self.__eraser_row, self.__eraser_col)
+        print('new_index is {0} from {1},{2}'.format(new_index,
+            self.__eraser_row, self.__eraser_col))
+        # If new index is not background colour, then we have found a new block
+        # to erase.
+        if self.__current_state[new_index] != GyroClear.b:
+            block_erased = True
+            # Update current state to make this index background colour.
+            self.__current_state[new_index] = GyroClear.b
 
-        self.__sense.set_pixel(old_x, old_y, GyroClear.c)
+        # Update the pixels on the sense hat display
+        self.__sense.set_pixel(old_x, old_y, GyroClear.b)
         self.__sense.set_pixel(self.__eraser_row, self.__eraser_col, GyroClear.e)
 
-    def play_game(self, max_moves):
-        count = 0
-        while count < max_moves:
-            self.move_eraser()
-            time.sleep(0.5)
-            count += 1
+        return block_erased
+
+    def play_game(self):
+        self.display_current_board()
+        count = game.count_letter_blocks()
+        while count > 0:
+            erased = self.move_eraser()
+            if erased:
+                count -= 1
+            time.sleep(0.25)
+            print('count is {0}'.format(count))
+        self.__sense.show_message('Enter secret message here',
+            text_colour=GyroClear.f,
+            back_colour=GyroClear.b)
 
 if __name__ == "__main__":
     game = GyroClear()
     game.clear_display()
     #game.display_current_readings()
-    game.display_letters()
+    #game.display_letters()
     #game.show_letter('a')
     #game.show_letter('s')
     #game.show_letter('p')
     game.clear_display()
-    #game.play_game(100)
+    game.play_game()
     game.clear_display()
