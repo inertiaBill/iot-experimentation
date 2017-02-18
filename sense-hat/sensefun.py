@@ -160,14 +160,17 @@ class GyroClear(object):
         return block_erased
 
     def play_game(self):
-        self.display_current_board()
-        count = game.count_letter_blocks()
-        while count > 0:
-            erased = self.move_eraser()
-            if erased:
-                count -= 1
-            time.sleep(0.25)
-            print('count is {0}'.format(count))
+        have_level = True
+        while have_level:
+            self.display_current_board()
+            count = game.count_letter_blocks()
+            while count > 0:
+                erased = self.move_eraser()
+                if erased:
+                    count -= 1
+                time.sleep(0.25)
+                print('count is {0}'.format(count))
+            have_level = self.next_letter()
         self.__sense.show_message('Enter secret message here',
             text_colour=GyroClear.f,
             back_colour=GyroClear.b)
